@@ -1,0 +1,19 @@
+{
+  "name": "com.pluginset.bugly",
+  "displayName": "PluginSet Bugly",
+  "version": "0.0.1",
+  "unity": "2019.4",
+  "description": "Bugly https://bugly.qq.com",
+  "keywords": [
+    "pluginset",
+    "bugly"
+  ],
+  "dependencies": {
+    "com.pluginset.tool.playerservicesresolver": "0.0.1",
+    "com.pluginset.core": "0.0.1"
+  },
+  "author": {
+    "name": "LyneXiao",
+    "email": "lixonxs@icloud.com"
+  }
+}

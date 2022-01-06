@@ -1,0 +1,19 @@
+{
+    "name": "PluginSet.Bugly.Editor",
+    "references": [
+        "PluginSet.Core",
+        "PluginSet.Core.Editor",
+        "PluginSet.Bugly"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
