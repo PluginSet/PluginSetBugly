@@ -9,7 +9,6 @@
     "bugly"
   ],
   "dependencies": {
-    "com.pluginset.tool.playerservicesresolver": "0.0.1",
     "com.pluginset.core": "0.0.1"
   },
   "author": {

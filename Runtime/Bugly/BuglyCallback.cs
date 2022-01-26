@@ -1,4 +1,4 @@
-#if ENABLE_BUGLY
+#if UNITY_EDITOR || ENABLE_BUGLY
 
 // ----------------------------------------
 //

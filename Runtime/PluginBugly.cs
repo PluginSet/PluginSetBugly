@@ -1,15 +1,18 @@
-#if ENABLE_BUGLY
+#if UNITY_EDITOR || ENABLE_BUGLY
 using System.Collections.Generic;
 using PluginSet.Core;
 using UnityEngine;
 
 namespace PluginSet.Bugly
 {
+#if !UNITY_EDITOR
     [PluginRegister]
-    public class PluginBugly : PluginBase
+#endif
+    public class PluginBugly : PluginBase, IUserSet
     {
         public override string Name => "Bugly";
 
+        private string _userId;
         private Dictionary<string, object> _userInfo;
         private Dictionary<string, string> _extra;
 
@@ -75,13 +78,6 @@ namespace PluginSet.Bugly
             {
                 OnPluginCoreReportError(context.Data is ReportError data ? data : default);
             });
-
-            AddEventListener(PluginConstants.NOTIFY_USER_INFO, delegate(PluginsEventContext context)
-            {
-                OnUserInfoSet(context.Data as Dictionary<string, object>);
-            });
-
-            AddEventListener(PluginConstants.NOTIFY_USER_ID, OnUserIdChanged);
         }
 
         private Dictionary<string, string> LogCallbackExtrasHandler()
@@ -118,6 +114,29 @@ namespace PluginSet.Bugly
         {
             var userId = (string)context.Data;
             BuglyAgent.SetUserId(userId);
+        }
+
+        public void SetUserInfo(bool isNewUser, string userId, Dictionary<string, object> pairs = null)
+        {
+            if (_userId != userId)
+                ClearUserInfo();
+            
+            BuglyAgent.SetUserId(userId);
+            
+            if (pairs != null)
+            {
+                _userInfo = new Dictionary<string, object>(pairs);
+            }
+        }
+
+        public void ClearUserInfo()
+        {
+            BuglyAgent.SetUserId(string.Empty);
+            _userInfo = null;
+        }
+
+        public void FlushUserInfo()
+        {
         }
     }
 }
