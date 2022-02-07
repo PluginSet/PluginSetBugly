@@ -97,11 +97,6 @@ namespace PluginSet.Bugly
             return extras;
         }
 
-        private void OnUserInfoSet(Dictionary<string, object> userInfo)
-        {
-            _userInfo = userInfo;
-        }
-
         private void OnPluginCoreReportError(ReportError error)
         {
             if (error.ThreadName.Equals("MainThread"))
@@ -110,17 +105,12 @@ namespace PluginSet.Bugly
             BuglyAgent.ReportException(null, error.Condition, error.StackTrack);
         }
 
-        private void OnUserIdChanged(PluginsEventContext context)
-        {
-            var userId = (string)context.Data;
-            BuglyAgent.SetUserId(userId);
-        }
-
         public void SetUserInfo(bool isNewUser, string userId, Dictionary<string, object> pairs = null)
         {
             if (_userId != userId)
                 ClearUserInfo();
-            
+
+            _userId = userId;
             BuglyAgent.SetUserId(userId);
             
             if (pairs != null)
