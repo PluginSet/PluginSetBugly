@@ -9,7 +9,6 @@
 //
 // ----------------------------------------
 //
-#if UNITY_EDITOR || ENABLE_BUGLY
 using UnityEngine;
 
 using System;
@@ -37,6 +36,8 @@ public enum LogSeverity
     LogError,
     LogException
 }
+
+#if UNITY_EDITOR || ENABLE_BUGLY
 
 /// <summary>
 /// Bugly agent.
