@@ -65,13 +65,14 @@ namespace PluginSet.Bugly.Editor
             bugly.AppendContentNode($"appKey = \"{buildParams.AppKey}\"");
             bugly.AppendContentNode($"appVersion = \"{PluginUtil.GetVersionString(PlayerSettings.bundleVersion, PlayerSettings.Android.bundleVersionCode)}\"");
         }
-
-        public static void UploadBuglySymbols()
+        
+        [ExportTaskCompleted]
+        public static void OnExportProjectCompleted(BuildProcessorContext context)
         {
-            if (!Application.isBatchMode)
-                throw new BuildException("Application is not in batch mode");
-
-            CollectAndUploadSymbols(BuildProcessorContext.BatchMode());
+            if (!context.ExportProject)
+                return;
+            
+            CollectAndUploadSymbols(context);
         }
 
         [MenuItem("PluginSet/Collect Bugly Symbols")]
