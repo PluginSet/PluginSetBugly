@@ -95,6 +95,10 @@ namespace PluginSet.Bugly.Editor
 #endif
             context.SetBuildResult("buglySymbols", symbolPath);
             context.SetBuildResult("buglyVersion", PluginUtil.GetVersionString(PlayerSettings.bundleVersion, PlayerSettings.Android.bundleVersionCode));
+            
+#if UNITY_ANDROID
+            CopyAndroidUnitySymbols(symbolPath, context.DebugMode);
+#endif
         }
 
         [MenuItem("PluginSet/Collect Bugly Symbols")]
@@ -179,6 +183,13 @@ namespace PluginSet.Bugly.Editor
                 Global.CopyFilesTo(symbolsPath, Path.Combine(projectPath, "unityLibrary", "build", $"il2cpp_{arm}_Release", "il2cpp_cache"), "*.sym.so");
                 Global.CopyFilesTo(symbolsPath, Path.Combine(projectPath, "unityLibrary", "build", $"il2cpp_{arm}_Release", "il2cpp_cache"), "*.dbg.so");
             }
+        }
+
+        private static void CopyAndroidUnitySymbols(string targetPath, bool debug)
+        {
+            var unitySymbols = Path.Combine(EditorApplication.applicationPath, "..", "PlaybackEngines", "AndroidPlayer",
+                "Variations", "il2cpp", debug ? "Development" : "Release", "Symbols");
+            Global.CopyFilesTo(targetPath, unitySymbols, "*.sym.so");
         }
         
         private static void CopyAppleAppSymbolsInApp(string targetPath, string appPath)
