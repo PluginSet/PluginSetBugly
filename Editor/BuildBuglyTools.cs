@@ -5,6 +5,7 @@ using System.IO;
 using PluginSet.Core;
 using PluginSet.Core.Editor;
 using UnityEditor;
+using UnityEditor.iOS.Xcode.Extensions;
 using UnityEngine;
 
 namespace PluginSet.Bugly.Editor
@@ -22,7 +23,7 @@ namespace PluginSet.Bugly.Editor
             context.Symbols.Add("ENABLE_BUGLY");
             context.AddLinkAssembly("PluginSet.Bugly");
 
-            Global.CopyDependenciesInLib("com.pluginset.bugly");
+//            Global.CopyDependenciesInLib("com.pluginset.bugly");
 
             var pluginConfig = context.Get<PluginSetConfig>("pluginsConfig");
             var config = pluginConfig.Get<PluginBuglyConfig>("Bugly");
@@ -42,6 +43,9 @@ namespace PluginSet.Bugly.Editor
             var project = projectManager.Project;
             project.SetBuildProperty(projectManager.MainFramework, "GCC_GENERATE_DEBUGGING_SYMBOLS", "YES");
             project.SetBuildProperty(projectManager.UnityFramework, "GCC_GENERATE_DEBUGGING_SYMBOLS", "YES");
+            project.AddFrameworkToProject(projectManager.UnityFramework, "libz.dylib", false);
+            project.AddFrameworkToProject(projectManager.UnityFramework, "libc++.dylib", false);
+            project.AddFrameworkToProject(projectManager.UnityFramework, "JavaScriptCore.framework", true);
         }
 
         [AndroidProjectModify]
