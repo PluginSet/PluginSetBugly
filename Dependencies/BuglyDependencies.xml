@@ -1,5 +1,5 @@
 <dependencies>
     <iosPods>
-        <iosPod name="Bugly"/>
+        <iosPod name="Bugly" version="~>2.4.0"/>
     </iosPods>
 </dependencies>
