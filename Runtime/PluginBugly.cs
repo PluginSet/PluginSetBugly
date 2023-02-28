@@ -1,4 +1,5 @@
 #if UNITY_EDITOR || ENABLE_BUGLY
+using System.Collections;
 using System.Collections.Generic;
 using PluginSet.Core;
 using UnityEngine;
@@ -8,13 +9,18 @@ namespace PluginSet.Bugly
 #if !UNITY_EDITOR
     [PluginRegister]
 #endif
-    public class PluginBugly : PluginBase, IUserSet
+    public class PluginBugly : PluginBase, IStartPlugin, IPrivacyAuthorizationCallback, IUserSet
     {
         public override string Name => "Bugly";
 
+        public int StartOrder => PluginsStartOrder.AppStart + 2;
+        public bool IsRunning { get; private set; }
         private string _userId;
         private Dictionary<string, object> _userInfo;
         private Dictionary<string, string> _extra;
+
+        private bool _sdkInited = false;
+        private PluginBuglyConfig buglyConfig;
 
         private Dictionary<string, string> DefaultExtra
         {
@@ -46,11 +52,36 @@ namespace PluginSet.Bugly
             }
         }
 
-
         protected override void Init(PluginSetConfig config)
         {
-            var buglyConfig = config.Get<PluginBuglyConfig>("Bugly");
+            buglyConfig = config.Get<PluginBuglyConfig>("Bugly");
+        }
+        
+        public IEnumerator StartPlugin()
+        {
+            if (IsRunning)
+                yield break;
 
+            IsRunning = true;
+            
+            if (!_managerInstance.IsPrivacyAuthorized)
+                yield break;
+            
+            InitSdk();
+        }
+
+        public void DisposePlugin(bool isAppQuit = false)
+        {
+        }
+        
+        public void OnPrivacyAuthorization()
+        {
+            if (IsRunning)
+                InitSdk();
+        }
+
+        private void InitSdk()
+        {
             // Enable the debug log print
             BuglyAgent.ConfigDebugMode(false); // 没什么卵用，就打印一个东西让你去后台查
 
@@ -78,6 +109,10 @@ namespace PluginSet.Bugly
             {
                 OnPluginCoreReportError(context.Data is ReportError data ? data : default);
             });
+            _sdkInited = true;
+            
+            if (!string.IsNullOrEmpty(_userId))
+                BuglyAgent.SetUserId(_userId);
         }
 
         private Dictionary<string, string> LogCallbackExtrasHandler()
@@ -99,6 +134,9 @@ namespace PluginSet.Bugly
 
         private void OnPluginCoreReportError(ReportError error)
         {
+            if (!_sdkInited)
+                return;
+                
             if (error.ThreadName.Equals("MainThread"))
                 return;
 
@@ -111,18 +149,25 @@ namespace PluginSet.Bugly
                 ClearUserInfo();
 
             _userId = userId;
-            BuglyAgent.SetUserId(userId);
             
             if (pairs != null)
             {
                 _userInfo = new Dictionary<string, object>(pairs);
             }
+            
+            if (!_sdkInited)
+                return;
+                
+            BuglyAgent.SetUserId(userId);
         }
 
         public void ClearUserInfo()
         {
-            BuglyAgent.SetUserId(string.Empty);
+            _userId = string.Empty;
             _userInfo = null;
+            if (!_sdkInited)
+                return;
+            BuglyAgent.SetUserId(string.Empty);
         }
 
         public void FlushUserInfo()
