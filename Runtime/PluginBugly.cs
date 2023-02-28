@@ -86,8 +86,8 @@ namespace PluginSet.Bugly
             BuglyAgent.ConfigDebugMode(false); // 没什么卵用，就打印一个东西让你去后台查
 
             // Config default channel, version, user 
-            var channel = _managerInstance.GetChannelName();
-            var channelId = _managerInstance.GetChannelId();
+            var channel = _managerInstance.GetChannelNameWith("Channel");
+            var channelId = _managerInstance.GetChannelIdWith("Channel");
             var version = PluginUtil.AppVersion;
             var user = SystemInfo.deviceUniqueIdentifier;
             BuglyAgent.ConfigDefault($"{channel}_{channelId}", version, user, buglyConfig.ReportDelay);
