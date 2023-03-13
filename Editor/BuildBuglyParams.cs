@@ -1,9 +1,12 @@
+using PluginSet.Core;
 using PluginSet.Core.Editor;
 using UnityEngine;
 
 namespace PluginSet.Bugly.Editor
 {
     [BuildChannelsParams("Bugly", "Bugly相关设置")]
+    [VisibleCaseBoolValue("SupportAndroid", true)]
+    [VisibleCaseBoolValue("SupportIOS", true)]
     public class BuildBuglyParams: ScriptableObject
     {
         [Tooltip("是否启用Bugly")]

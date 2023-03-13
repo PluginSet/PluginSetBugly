@@ -5,7 +5,6 @@ using System.IO;
 using PluginSet.Core;
 using PluginSet.Core.Editor;
 using UnityEditor;
-using UnityEditor.iOS.Xcode.Extensions;
 using UnityEngine;
 
 namespace PluginSet.Bugly.Editor
@@ -16,6 +15,9 @@ namespace PluginSet.Bugly.Editor
         [OnSyncEditorSetting]
         public static void OnSyncEditorSetting(BuildProcessorContext context)
         {
+            if (context.BuildTarget != BuildTarget.Android && context.BuildTarget != BuildTarget.iOS)
+                return;
+                
             var buildParams = context.BuildChannels.Get<BuildBuglyParams>("Bugly");
             if (!buildParams.Enable)
                 return;
@@ -34,18 +36,19 @@ namespace PluginSet.Bugly.Editor
         }
 
         [iOSXCodeProjectModify]
-        public static void OniOSXCodeProjectModify(BuildProcessorContext context, PBXProjectManager projectManager)
+        public static void OniOSXCodeProjectModify(BuildProcessorContext context, PBXProjectManager project)
         {
             var buildParams = context.BuildChannels.Get<BuildBuglyParams>("Bugly");
             if (!buildParams.Enable)
                 return;
 
-            var project = projectManager.Project;
-            project.SetBuildProperty(projectManager.MainFramework, "GCC_GENERATE_DEBUGGING_SYMBOLS", "YES");
-            project.SetBuildProperty(projectManager.UnityFramework, "GCC_GENERATE_DEBUGGING_SYMBOLS", "YES");
-            project.AddFrameworkToProject(projectManager.UnityFramework, "libz.dylib", false);
-            project.AddFrameworkToProject(projectManager.UnityFramework, "libc++.dylib", false);
-            project.AddFrameworkToProject(projectManager.UnityFramework, "JavaScriptCore.framework", true);
+            var mainFramework = project.MainFramework;
+            var unityFramework = project.UnityFramework;
+            project.SetBuildProperty(mainFramework, "GCC_GENERATE_DEBUGGING_SYMBOLS", "YES");
+            project.SetBuildProperty(unityFramework, "GCC_GENERATE_DEBUGGING_SYMBOLS", "YES");
+            project.AddFrameworkToProject(unityFramework, "libz.dylib", false);
+            project.AddFrameworkToProject(unityFramework, "libc++.dylib", false);
+            project.AddFrameworkToProject(unityFramework, "JavaScriptCore.framework", true);
         }
 
         [AndroidProjectModify]
