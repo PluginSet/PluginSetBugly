@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace PluginSet.Bugly
 {
-    [PluginSetConfig("Bugly")]
     public class PluginBuglyConfig: ScriptableObject
     {
         public string AppId;

@@ -18,7 +18,7 @@ namespace PluginSet.Bugly.Editor
             if (context.BuildTarget != BuildTarget.Android && context.BuildTarget != BuildTarget.iOS)
                 return;
                 
-            var buildParams = context.BuildChannels.Get<BuildBuglyParams>("Bugly");
+            var buildParams = context.BuildChannels.Get<BuildBuglyParams>();
             if (!buildParams.Enable)
                 return;
 
@@ -28,7 +28,7 @@ namespace PluginSet.Bugly.Editor
 //            Global.CopyDependenciesInLib("com.pluginset.bugly");
 
             var pluginConfig = context.Get<PluginSetConfig>("pluginsConfig");
-            var config = pluginConfig.Get<PluginBuglyConfig>("Bugly");
+            var config = pluginConfig.AddConfig<PluginBuglyConfig>("Bugly");
             config.AppId = buildParams.AppId;
             config.AutoLogSeverity = buildParams.AutoLogSeverity;
             config.AutoQuitApplication = buildParams.AutoQuitApplication;
@@ -38,7 +38,7 @@ namespace PluginSet.Bugly.Editor
         [iOSXCodeProjectModify]
         public static void OniOSXCodeProjectModify(BuildProcessorContext context, PBXProjectManager project)
         {
-            var buildParams = context.BuildChannels.Get<BuildBuglyParams>("Bugly");
+            var buildParams = context.BuildChannels.Get<BuildBuglyParams>();
             if (!buildParams.Enable)
                 return;
 
@@ -54,7 +54,7 @@ namespace PluginSet.Bugly.Editor
         [AndroidProjectModify]
         public static void OnAndroidProjectModify(BuildProcessorContext context, AndroidProjectManager projectManager)
         {
-            var buildParams = context.BuildChannels.Get<BuildBuglyParams>("Bugly");
+            var buildParams = context.BuildChannels.Get<BuildBuglyParams>();
             if (!buildParams.Enable)
                 return;
 
@@ -116,7 +116,7 @@ namespace PluginSet.Bugly.Editor
         
         private static void CollectAndUploadSymbols(BuildProcessorContext context)
         {
-            var buildParams = context.BuildChannels.Get<BuildBuglyParams>("Bugly");
+            var buildParams = context.BuildChannels.Get<BuildBuglyParams>();
             if (!buildParams.Enable)
                 return;
             

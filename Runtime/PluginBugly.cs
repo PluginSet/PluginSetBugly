@@ -54,7 +54,7 @@ namespace PluginSet.Bugly
 
         protected override void Init(PluginSetConfig config)
         {
-            buglyConfig = config.Get<PluginBuglyConfig>("Bugly");
+            buglyConfig = config.Get<PluginBuglyConfig>();
         }
         
         public IEnumerator StartPlugin()
