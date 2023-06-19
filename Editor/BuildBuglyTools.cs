@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using PluginSet.Core;
 using PluginSet.Core.Editor;
 using UnityEditor;
@@ -78,34 +75,6 @@ namespace PluginSet.Bugly.Editor
             var pluginPath = Global.GetPackageFullPath("com.pluginset.bugly");
             var toolJar = Path.GetFullPath(Path.Combine(pluginPath, "Editor", "Tools~", "buglyqq-upload-symbol.jar"));
             Global.CopyFile(toolJar, Path.Combine(context.ProjectPath, "buglyqq-upload-symbol.jar"), null);
-            
-            context.SetBuildResult("buglyId", buildParams.AppId);
-            context.SetBuildResult("buglyKey", buildParams.AppKey);
-            
-#if !UNITY_2020_1_OR_NEWER
-            var isWindows = Application.platform == RuntimePlatform.WindowsEditor;
-            var sevenZip = Path.Combine(EditorApplication.applicationContentsPath, "Tools", isWindows ? "7z.exe" : "7za");
-            
-            string symbolZip = Path.GetFileNameWithoutExtension(context.ProjectPath) + "-" + PlayerSettings.bundleVersion + "-v" + (object) PlayerSettings.Android.bundleVersionCode + ".symbols.zip";
-            string path = Path.GetFullPath(Path.Combine(context.ProjectPath, "..", symbolZip));
-            if (!File.Exists(path))
-            {
-                Debug.LogWarning($"Cannot find symbol.zip at path : {path}");
-                return;
-            }
-            string symbolPath = Path.GetFullPath(Path.Combine(context.ProjectPath, "symbols"));
-            Global.ExecuteCommand(sevenZip, "x", "-tzip", "-y", path, $"-o{symbolPath}");
-            
-            File.Delete(path);
-#else
-            string symbolPath = Path.GetFullPath(Path.Combine(context.ProjectPath, "unityLibrary", "symbols"));
-#endif
-            context.SetBuildResult("buglySymbols", symbolPath);
-            context.SetBuildResult("buglyVersion", PluginUtil.GetVersionString(PlayerSettings.bundleVersion, PlayerSettings.Android.bundleVersionCode));
-            
-#if UNITY_ANDROID
-            CopyAndroidUnitySymbols(symbolPath, context.DebugMode);
-#endif
         }
 
         [MenuItem("PluginSet/Collect Bugly Symbols")]
@@ -114,6 +83,7 @@ namespace PluginSet.Bugly.Editor
             CollectAndUploadSymbols(BuildProcessorContext.Default());
         }
         
+        [BuildCompletedCallback]
         private static void CollectAndUploadSymbols(BuildProcessorContext context)
         {
             var buildParams = context.BuildChannels.Get<BuildBuglyParams>();
@@ -123,6 +93,7 @@ namespace PluginSet.Bugly.Editor
             if (!buildParams.UploadSymbols)
                 return;
 
+            string savePath = Path.GetFullPath(Path.Combine(context.ProjectPath, "bugly_symbols"));
 #if !UNITY_2020_1_OR_NEWER
             var isWindows = Application.platform == RuntimePlatform.WindowsEditor;
             var sevenZip = Path.Combine(EditorApplication.applicationContentsPath, "Tools", isWindows ? "7z.exe" : "7za");
@@ -134,15 +105,12 @@ namespace PluginSet.Bugly.Editor
                 Debug.LogWarning($"Cannot find symbol.zip at path : {path}");
                 return;
             }
-            string symbolPath = Path.GetFullPath(Path.Combine(context.ProjectPath, "symbols"));
-            Global.ExecuteCommand(sevenZip, "x", "-tzip", "-y", path, $"-o{symbolPath}");
-            
-            File.Delete(path);
+            Global.ExecuteCommand(sevenZip, "x", "-tzip", "-y", path, $"-o{savePath}");
 #else
             string symbolPath = Path.GetFullPath(Path.Combine(context.ProjectPath, "unityLibrary", "symbols"));
 #endif
 #if UNITY_ANDROID
-            CopyAndroidSymbols(symbolPath, context.ProjectPath);
+            CopyAndroidSymbols(savePath, context.ProjectPath);
 #endif
             
             if (!Directory.Exists(symbolPath))
@@ -151,6 +119,7 @@ namespace PluginSet.Bugly.Editor
                 return;
             }
             
+            Global.CopyFilesTo(savePath, symbolPath, "*.so", SearchOption.AllDirectories);
             var pluginPath = Global.GetPackageFullPath("com.pluginset.bugly");
             var toolJar = Path.GetFullPath(Path.Combine(pluginPath, "Editor", "Tools~", "buglyqq-upload-symbol.jar"));
             if (!File.Exists(toolJar))
@@ -166,7 +135,7 @@ namespace PluginSet.Bugly.Editor
                 , "-jar", toolJar
                 , "-appid", buildParams.AppId
                 , "-appkey", buildParams.AppKey
-                , "-inputSymbol", symbolPath
+                , "-inputSymbol", savePath
                 , "-version", PluginUtil.GetVersionString(PlayerSettings.bundleVersion, PlayerSettings.Android.bundleVersionCode)
 #if UNITY_IOS
                 , "-bundleid", PlayerSettings.GetApplicationIdentifier(BuildTargetGroup.iOS)
@@ -176,9 +145,6 @@ namespace PluginSet.Bugly.Editor
                 , "-platform", "Android"
 #endif
             );
-            
-            Global.CopyFiles(symbolPath, Path.Combine(context.ProjectPath, "symbols-backup"));
-//            Global.CheckAndDeletePath(symbolPath);
         }
 
         private static void CopyAndroidSymbols(string targetPath, string projectPath)
@@ -194,7 +160,12 @@ namespace PluginSet.Bugly.Editor
 
         private static void CopyAndroidUnitySymbols(string targetPath, bool debug)
         {
-            var unitySymbols = Path.Combine(EditorApplication.applicationPath, "..", "PlaybackEngines", "AndroidPlayer",
+#if UNITY_EDITOR_WIN
+            var unitySymbols = Path.Combine(EditorApplication.applicationContentsPath
+#else
+            var unitySymbols = Path.Combine(EditorApplication.applicationPath, ".."
+#endif
+                , "PlaybackEngines", "AndroidPlayer",
                 "Variations", "il2cpp", debug ? "Development" : "Release", "Symbols");
             Global.CopyFilesTo(targetPath, unitySymbols, "*.sym.so");
         }
