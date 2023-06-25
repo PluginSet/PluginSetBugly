@@ -110,7 +110,7 @@ namespace PluginSet.Bugly.Editor
             string symbolPath = Path.GetFullPath(Path.Combine(context.ProjectPath, "unityLibrary", "symbols"));
 #endif
 #if UNITY_ANDROID
-            CopyAndroidSymbols(savePath, context.ProjectPath);
+            CopyAndroidUnitySymbols(savePath, context.DebugMode);
 #endif
             
             if (!Directory.Exists(symbolPath))
@@ -145,17 +145,6 @@ namespace PluginSet.Bugly.Editor
                 , "-platform", "Android"
 #endif
             );
-        }
-
-        private static void CopyAndroidSymbols(string targetPath, string projectPath)
-        {
-            foreach (var arm in new string[]{"arm64-v8a", "armeabi-v7a"})
-            {
-                var symbolsPath = Path.Combine(targetPath, arm);
-                Global.CopyFilesTo(symbolsPath, Path.Combine(Application.dataPath, "..", "Temp", "StagingArea", "symbols", arm), "*.sym.so");
-                Global.CopyFilesTo(symbolsPath, Path.Combine(projectPath, "unityLibrary", "build", $"il2cpp_{arm}_Release", "il2cpp_cache"), "*.sym.so");
-                Global.CopyFilesTo(symbolsPath, Path.Combine(projectPath, "unityLibrary", "build", $"il2cpp_{arm}_Release", "il2cpp_cache"), "*.dbg.so");
-            }
         }
 
         private static void CopyAndroidUnitySymbols(string targetPath, bool debug)
