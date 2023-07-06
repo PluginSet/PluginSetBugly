@@ -83,7 +83,11 @@ namespace PluginSet.Bugly
         private void InitSdk()
         {
             // Enable the debug log print
+#if DEBUG
             BuglyAgent.ConfigDebugMode(true); // 没什么卵用，就打印一个东西让你去后台查
+#else
+            BuglyAgent.ConfigDebugMode(false); // 没什么卵用，就打印一个东西让你去后台查
+#endif
 
             // Config default channel, version, user 
             var channel = _managerInstance.GetChannelNameWith("Channel");
