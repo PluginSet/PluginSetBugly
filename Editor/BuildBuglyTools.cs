@@ -22,7 +22,7 @@ namespace PluginSet.Bugly.Editor
             context.Symbols.Add("ENABLE_BUGLY");
             context.AddLinkAssembly("PluginSet.Bugly");
 
-//            Global.CopyDependenciesInLib("com.pluginset.bugly");
+            Global.CopyDependenciesInLib("com.pluginset.bugly");
 
             var pluginConfig = context.Get<PluginSetConfig>("pluginsConfig");
             var config = pluginConfig.AddConfig<PluginBuglyConfig>("Bugly");

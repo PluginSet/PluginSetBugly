@@ -1,4 +1,7 @@
 <dependencies>
+    <androidPackages>
+        <androidPackage spec="com.tencent.bugly:crashreport:latest.release" />
+    </androidPackages>
     <iosPods>
         <iosPod name="Bugly" version="~>2.4.0"/>
     </iosPods>
